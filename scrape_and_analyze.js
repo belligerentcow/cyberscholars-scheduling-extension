@@ -101,7 +101,7 @@ for (var elt in refactored_name_array) {
   all_combinations.push(combinations(refactored_name_array[elt]));
 }
 
-var remove_extraneous_options = all_combinations.map(subarray => subarray.filter(el => el.length > 1 && el.length <= 3));
+var remove_extraneous_options = all_combinations.map(subarray => subarray.filter(el => el.length != 0 && el.length <= 3));
 remove_extraneous_options = remove_extraneous_options.filter(el => el.length != 0);
 
 var test_name_manifest = [];
@@ -149,9 +149,27 @@ for (combo_of_combos in final_combinations) {
   final_test_name_manifest = [];
 }
 
+var score = 0;
+
+for (elt in possibilities) {
+  for (subelt in possibilities[elt]) {
+    if (possibilities[elt][subelt].length == 2) {
+      score += 2;
+    } else if (possibilities[elt][subelt].length == 3) {
+      score += 1;
+    }
+  }
+  possibilities[elt].unshift(score);
+  score = 0;
+}
+
+possibilities = possibilities.sort((a, b) => b[0] - a[0]);
+
 console.log(possibilities);
 
 /*
+############
+Version 0.1
 1. Generate all combinations of names (only 2s and 3s) for each timestamp in the format
         
     [[[name, timestamp], [name, timestamp]], [[name, timestamp], [name, timestamp]]]
@@ -161,4 +179,14 @@ console.log(possibilities);
 3. Generate all the combinations of the sublists of combinations, and check to see if
   every name appears exactly once. Greenlight and save all of those sets. Discard 
   the rest.
+###########
+Version 0.2
+1. Generate all combinations of names for each timestamp (only up to combinations of 3, discard all combinations with more than 3 people) in the format
+
+    [[[name, timestamp], [name, timestamp]], [[name, timestamp], [name, timestamp]]]
+ 
+2. Generate all the combinations of the sublists of combinations, and check to see if
+  every name appears exactly once. Greenlight and save all of those sets. Discard 
+  the rest
+3. Loop through the greenlighted sets and score them based on how many of each kind of grouping they have (+2 for each group of 2, +1 for each group of 3, +0 for each group of 1), and then order the sets so that the ones with the highest scores are given first
 */
