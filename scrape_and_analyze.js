@@ -80,11 +80,7 @@ for (var elt in allTimes) {
   }
 }
 
-console.log(wholeObject);
-
 name_manifest = uniq(name_manifest);
-
-console.log(name_manifest);
 
 const entries = Object.entries(wholeObject);
 
@@ -107,7 +103,6 @@ for (var elt in refactored_name_array) {
 
 var remove_extraneous_options = all_combinations.map(subarray => subarray.filter(el => el.length > 1 && el.length <= 3));
 remove_extraneous_options = remove_extraneous_options.filter(el => el.length != 0);
-console.log(remove_extraneous_options);
 
 var test_name_manifest = [];
 
@@ -137,12 +132,7 @@ for (elt in remove_extraneous_options) {
   }
 }
 
-console.log(remove_extraneous_options);
-console.log(raised_array);
-
 final_combinations = combinations(raised_array);
-
-console.log(final_combinations);
 
 final_test_name_manifest = [];
 possibilities = [];
