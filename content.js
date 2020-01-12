@@ -9,8 +9,8 @@ chrome.runtime.onMessage.addListener(
         s.setAttribute('src', file);
         th.appendChild(s);
       }
-      injectScript(chrome.extension.getURL('insert_script.js'), 'body');
-    
+
+      injectScript(chrome.extension.getURL('scrape_and_analyze.js'), 'body');
     }
   }
 );
