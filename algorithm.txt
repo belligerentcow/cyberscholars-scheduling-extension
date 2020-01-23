@@ -1,0 +1,29 @@
+Algorithm:
+
+- Organize data into timestamp:[people] (sort by most people to least people) and person:[timestamps] (sort by least timestamps to most timestamps) objects.
+- Create rough solution by going in order of person:[timestamp] object and plugging them into the first available timeslot from ordered timestamp:[people] object
+- Solution will look like this:
+
+  {
+    possNumSlots: *total number of timeslots provided by admin*,
+    *timestamp1*: [[week 1 people, person, person], [week 2 people, person, person]],
+    *timestamp2*: [[week 1 people, person, person], [week 2 people, person, person]],
+    *timestamp3*...
+  }
+
+  The first time this data is passed through the below loop, the entire solution will be in the week 1 list. There will be an empty week 2 list for each timestamp (*timestamp1*: [[person, person], []])
+
+- Loop:
+  - Score solution based on heuristic 
+  - Swap first person to next available timeslot for them (timeslot may not be listed in the original object we pass the score heuristic, so a new object is generated each time)
+  - If score is higher, keep that solution for the next iteration
+  - Once first person has been placed in the highest scoring position, do the same with each subsequent person in the solution
+  - Break after last person in list has been maximized
+- Return maximized solution
+
+Scoring Heuristic:
+- Higher score is a better solution
+- For each timeslot, |(an integer tbd, possibly 3) - (number of people in the timeslot)| (fewer people is better)
+- For the whole solution, |(total number of possible timeslots) - (used timeslots)| (fewer timeslots are better)
+- For each timeslot, |(+- an integer tbd based on time of day)| (afternoon good, morning bad)
+- For each timeslot, |(+- an integer tbd based on number of uses for timeslot on a biweekly basis)| (2 uses good, 1 use bad)
