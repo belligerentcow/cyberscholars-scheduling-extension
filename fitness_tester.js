@@ -18,7 +18,7 @@ function calculateScore(group) {
  * Processes a list of time slots and returns the "fitness" score based on if it is "optimized".
  * 
  * @param {{}} weekObject The object containing each "slot" with all the groups inside.
- * @param {number} possibleNumSlot The total number of slots.
+ * @param {number} possibleNumSlot The total number of slots possible.
  * @returns {number} The total "fitness" score for this particular schedule combination.
  */
 function checkFitness(weekObject, possibleNumSlot) {
@@ -34,12 +34,14 @@ function checkFitness(weekObject, possibleNumSlot) {
     let score = 0
 
     for(let i = 0; i < slots.length; i++) {
-        // Week one's groups
+        // Week one's groups for this slot
         score += calculateScore(slots[i][0])
 
-        // Week two's groups
+        // Week two's groups for this slot
         score += calculateScore(slots[i][1])
     }
+
+    score += Math.abs(possibleNumSlot - slots.length)
 
     return score
 }
