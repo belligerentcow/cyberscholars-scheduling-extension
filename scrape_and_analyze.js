@@ -1,5 +1,3 @@
-var responseObject = window.respondents;
-
 function uniq(a) {
   var seen = {};
   return a.filter(function(item) {
@@ -7,186 +5,72 @@ function uniq(a) {
   });
 }
 
-function combinations(alist) {
-  var names = alist;
-  var combi = [];
-  var temp= "";
-  var letLen = Math.pow(2, names.length);
-
-  for (var i = 0; i < letLen ; i++){
-    temp = [];
-    for (var j=0 ; j < names.length; j++) {
-      if ((i & Math.pow(2,j))){ 
-        temp.push(names[j])
-      }
-    }
-    if (temp !== []) {
-      combi.push(temp);
-    }
-  }
-  return combi;
-}
-
-function find_diff(arr1, arr2) {
-  diff = [];
-  joined = arr1.concat(arr2);
-  for( i = 0; i <= joined.length; i++ ) {
-    current = joined[i];
-    if( joined.indexOf(current) == joined.lastIndexOf(current) ) {
-      diff.push(current);
-    }
-  }
-  diff = diff.filter(el => typeof el !== 'undefined');
-  return diff;
-}
-
-function areArraysEqualSets(_arr1, _arr2) {
-  if (!Array.isArray(_arr1) || ! Array.isArray(_arr2) || _arr1.length !== _arr2.length)
-    return false;
-  var arr1 = _arr1.concat().sort();
-  var arr2 = _arr2.concat().sort();
-  for (var i = 0; i < arr1.length; i++) {
-  if (arr1[i] !== arr2[i])
-    return false;
-  }
-  return true;
-}
-
+const responseObject = window.respondents;
 const responses = Object.entries(responseObject);
 
-var allTimes = [];
-for (var workingArray in responses) {
-  for (var elt in responses[workingArray][1].myCanDos) {
-    allTimes.push(responses[workingArray][1].myCanDos[elt]);
-  }
+console.log(responses);
+
+var all_times = [];
+var person_to_timestamp = new Object;
+for (var itm in responses) {
+  let current_name = responses[itm][1].name;
+  person_to_timestamp[current_name] = responses[itm][1].myCanDos;
+  all_times.push.apply(all_times, responses[itm][1].myCanDos);
 }
 
-allTimes = uniq(allTimes);
+all_times = uniq(all_times);
 
-name_manifest = []
+console.log(person_to_timestamp);
 
-wholeObject = new Object;
-
-for (var elt in allTimes) {
-  for (var workingArray in responses) {
-    if (responses[workingArray][1].myCanDos.includes(allTimes[elt])) {
-      if (allTimes[elt] in wholeObject) {
-        wholeObject[allTimes[elt]].push(responses[workingArray][1].name);
+var timestamp_to_person = new Object;
+for (var time in all_times) {
+  for (var itm in responses) {
+    let current_time = all_times[time];
+    let current_availability = responses[itm][1].myCanDos;
+    let current_name = responses[itm][1].name;
+    if (current_availability.includes(current_time)) {
+      if (timestamp_to_person.hasOwnProperty(current_time)){
+        timestamp_to_person[current_time].push(current_name);
       } else {
-        wholeObject[allTimes[elt]] = [responses[workingArray][1].name];
+        timestamp_to_person[current_time] = [current_name];
       }
-      name_manifest.push(responses[workingArray][1].name);
     }
   }
 }
 
-name_manifest = uniq(name_manifest);
+console.log(timestamp_to_person);
 
-const entries = Object.entries(wholeObject);
-
-refactored_name_array = [];
-temp_list = []
-
-for (var elt in entries) {
-  for (var particular_name in entries[elt][1]) {
-    temp_list.push([entries[elt][1][particular_name], entries[elt][0]]);
+function objToArray(obj) {
+  var return_array = [];
+  for (var a_prop in obj) {
+    return_array.push([a_prop, obj[a_prop]]);
   }
-  refactored_name_array.push(temp_list);
-  temp_list = [];
+  return return_array;
 }
 
-all_combinations = [];
+sortable_person_to_timestamp = objToArray(person_to_timestamp);
+sortable_person_to_timestamp.sort((a, b) => a[1].length - b[1].length);
 
-for (var elt in refactored_name_array) {
-  all_combinations.push(combinations(refactored_name_array[elt]));
-}
+sortable_timestamp_to_person = objToArray(timestamp_to_person);
+sortable_timestamp_to_person.sort((a, b) => b[1].length - a[1].length);
 
-var remove_extraneous_options = all_combinations.map(subarray => subarray.filter(el => el.length != 0 && el.length <= 3));
-remove_extraneous_options = remove_extraneous_options.filter(el => el.length != 0);
+console.log(sortable_person_to_timestamp);
+console.log(sortable_timestamp_to_person);
 
-var test_name_manifest = [];
-
-for (elt in remove_extraneous_options) {
-  for (subelt in remove_extraneous_options[elt]) {
-    for (subsubelt in remove_extraneous_options[elt][subelt]) {
-      test_name_manifest.push(remove_extraneous_options[elt][subelt][subsubelt][0]);
+var solution = new Object;
+for (var a_name in sortable_person_to_timestamp) {
+  for (var a_time in sortable_timestamp_to_person) {
+    let current_time = sortable_timestamp_to_person[a_time][0];
+    let current_name = sortable_person_to_timestamp[a_name][0];
+    if (sortable_person_to_timestamp[a_name][1].includes(current_time)) {
+      if (solution.hasOwnProperty(current_time)){
+        solution[current_time].push(current_name);
+      } else {
+        solution[current_time] = [current_name];
+      }
+      break;
     }
   }
 }
 
-test_name_manifest = uniq(test_name_manifest);
-var name_diff = find_diff(test_name_manifest, name_manifest);
-
-var name_key;
-
-for (aname in name_diff) {
-  name_key = Object.keys(wholeObject).filter(function(key) {return wholeObject[key] == name_diff[aname]})[0];
-  remove_extraneous_options.push([[[name_diff[aname], name_key]]]);
-}
-
-raised_array = []
-
-for (elt in remove_extraneous_options) {
-  for (subelt in remove_extraneous_options[elt]) {
-    raised_array.push(remove_extraneous_options[elt][subelt]);
-  }
-}
-
-final_combinations = combinations(raised_array);
-
-final_test_name_manifest = [];
-possibilities = [];
-
-for (combo_of_combos in final_combinations) {
-  for (sub_combo in final_combinations[combo_of_combos]) {
-    for (specific_elt in final_combinations[combo_of_combos][sub_combo]) {
-      final_test_name_manifest.push(final_combinations[combo_of_combos][sub_combo][specific_elt][0]);
-    }
-  }
-  if (areArraysEqualSets(name_manifest, final_test_name_manifest)) {
-    possibilities.push(final_combinations[combo_of_combos]);
-  }
-  final_test_name_manifest = [];
-}
-
-var score = 0;
-
-for (elt in possibilities) {
-  for (subelt in possibilities[elt]) {
-    if (possibilities[elt][subelt].length == 2) {
-      score += 2;
-    } else if (possibilities[elt][subelt].length == 3) {
-      score += 1;
-    }
-  }
-  possibilities[elt].unshift(score);
-  score = 0;
-}
-
-possibilities = possibilities.sort((a, b) => b[0] - a[0]);
-
-console.log(possibilities);
-
-/*
-############
-Version 0.1
-1. Generate all combinations of names (only 2s and 3s) for each timestamp in the format
-        
-    [[[name, timestamp], [name, timestamp]], [[name, timestamp], [name, timestamp]]]
-  
-2. Compare generated list to manifest of names and if any names are missing. If so,
-  add them as a single element combination to the master list
-3. Generate all the combinations of the sublists of combinations, and check to see if
-  every name appears exactly once. Greenlight and save all of those sets. Discard 
-  the rest.
-###########
-Version 0.2
-1. Generate all combinations of names for each timestamp (only up to combinations of 3, discard all combinations with more than 3 people) in the format
-
-    [[[name, timestamp], [name, timestamp]], [[name, timestamp], [name, timestamp]]]
- 
-2. Generate all the combinations of the sublists of combinations, and check to see if
-  every name appears exactly once. Greenlight and save all of those sets. Discard 
-  the rest
-3. Loop through the greenlighted sets and score them based on how many of each kind of grouping they have (+2 for each group of 2, +1 for each group of 3, +0 for each group of 1), and then order the sets so that the ones with the highest scores are given first
-*/
+console.log(solution);
