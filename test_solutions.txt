@@ -1,0 +1,47 @@
+The following solutions are in order from worst to best, with explanations for why they get better.
+
+This is a very very bad solution:
+{
+  possNumSlots: 10,
+  1579010400000: [[person1, person2, person3, person4, person5], []]
+}
+
+This is better because fewer people in a meeting is better
+{
+  possNumSlots: 10,
+  1579010400000: [[person1], []],
+  1578924000000: [[person2], []],
+  1578906000000: [[person3], []],
+  1579003200000: [[person4], []],
+  1578920400000: [[person5], []]
+}
+
+However, we also want to minimize the amount of slots we use
+{
+  possNumSlots: 10,
+  1579010400000: [[person1, person2], []],
+  1578906000000: [[person3, person4], []],
+  1578920400000: [[person5], []]
+}
+
+So it's calculus minimization: how can we minimize both the amount of people in slots and the number of slots themselves
+
+There are some other rules too:
+
+Keeping the same schedule on a biweekly basis is better (as a plus in this example, the number of slots is fewer as well)
+{
+  possNumSlots: 10,
+  1579010400000: [[person1, person2], [person3]],
+  1578906000000: [[person4], [person5]]
+}
+
+Finally, afternoon slots should be favored over morning ones (as a side note, whenisgood.net doesn't
+take time zone into account, so all epoch timestamps should be interpreted as GMT, i.e. 1578906000000 is Monday 9am GMT)
+
+{
+  possNumSlots: 10,
+  1579010400000: [[person1, person2], [person3]],
+  1579003200000: [[person4], [person5]]
+}
+
+So for five people, if this combination is possible, then this is the ideal form
