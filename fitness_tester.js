@@ -29,13 +29,13 @@ function calculateScore(slot, timestamp) {
 
     // Score the first group
     if (slot[0].length > 0) {
-        score += Math.abs(4 - (group.length ** 2))
+        score += Math.abs(4 - (slot.length ** 2))
         score += calcuateTimeScore(timestamp)
     }
 
     // Score the second group, and reward those groups with this second week utilized
     if (slot[1].length > 0) {
-        score += Math.abs(4 - (group.length ** 2))
+        score += Math.abs(4 - (slot.length ** 2))
         score += calcuateTimeScore(timestamp)
         
         // Extra points for using this second week slot
