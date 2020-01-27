@@ -9,7 +9,7 @@
  * @returns {number} The score for this particular group
  */
 function calculateScore(group) {
-    return Math.abs(3 - group.length)
+    return Math.abs(4 - (group.length ** 2))
 }
 
 // Exports
@@ -46,4 +46,24 @@ function checkFitness(weekObject, possibleNumSlot) {
     return score
 }
 
-export default checkFitness
+// In VS code you can run this file with Node.JS, change this data to test different scenarios 
+
+let slots2 = {
+    1579010400000: [["Taco", "Fluff"], []],
+    1578906000000: [["Puff", "Rufus"], []],
+    1578920400000: [["Tuff"], []]
+}
+
+let slots1 = {
+    1579010400000: [["Taco"], []],
+    1578924000000: [["Fluff"], []],
+    1578906000000: [["Puff"], []],
+    1579003200000: [["Rufus"], []],
+    1578920400000: [["Tuff"], []]
+}
+
+let score1 = checkFitness(slots1, 10)
+let score2 = checkFitness(slots2, 10)
+
+console.log(score1)
+console.log(score2)
