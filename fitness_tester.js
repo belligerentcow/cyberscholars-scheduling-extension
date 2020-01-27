@@ -77,8 +77,6 @@ function checkFitness(weekObject, possibleNumSlot) {
 
     score += Math.abs(possibleNumSlot - slots.length)
 
-    console.log("RAW_DATES: " + timestamps)
-
     return score
 }
 
