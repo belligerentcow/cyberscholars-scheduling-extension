@@ -80,6 +80,8 @@ function checkFitness(weekObject, possibleNumSlot) {
     return score
 }
 
+export default checkFitness = checkFitness
+
 // In VS code you can run this file with Node.JS, change this data to test different scenarios 
 
 let slots1 = {
