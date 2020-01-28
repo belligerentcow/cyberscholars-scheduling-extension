@@ -9,7 +9,7 @@ chrome.runtime.onMessage.addListener(
         s.setAttribute('src', file);
         th.appendChild(s);
       }
-
+      // Run `scrape_and_analyze.js` which is the meat and potatoes of this operation
       injectScript(chrome.extension.getURL('scrape_and_analyze.js'), 'body');
     }
   }
