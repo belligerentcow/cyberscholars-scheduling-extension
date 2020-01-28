@@ -211,7 +211,7 @@ function refineSolution(solution_and_other_info) {
       for (week = 0; week < 2; week++) {
         let new_temp_solution = swapSlot(solution, a_person, [new_slot, week]);
         new_temp_solution.possNumSlots = num_poss_slots;
-        let score = checkFitness(new_temp_solution);
+        var score = checkFitness(new_temp_solution);
         if (score > best_fitness) {
           best_fitness = score;
           solution = new_temp_solution;
@@ -219,7 +219,22 @@ function refineSolution(solution_and_other_info) {
       }
     }
   }
-  return solution;
+  solution.possNumSlots = num_poss_slots;
+  return [solution, person_to_timestamp, score];
+}
+
+function rerunRefine() {
+  let final_solution = generateRoughSolution();
+
+  while (true) {
+    temp_final = final_solution.slice(0);
+    final_solution = refineSolution(final_solution);
+    if (final_solution[2] === undefined) {
+      break;
+    }
+  }
+
+  return final_solution[0]
 }
 
 // SWAPPING FUNCTIONS
@@ -296,7 +311,7 @@ function convertToCSV(solution) {
   let rows = [
     ["Day/Time", "Week 1", "Week 2"]
   ];
-
+  delete solution.possNumSlots;
   solution = objToArray(solution);
   solution = solution.sort((a, b) => a[0] - b[0]);
 
@@ -367,8 +382,10 @@ if (DEBUG == true) {
   console.log(swapSlot(test_obj4, "person1", [1578906000000, 1]));
   console.log(swapSlot(test_obj4, "person1", [1579003200000, 1]));
 
-  console.log(refineSolution(generateRoughSolution()))
-  convertToCSV(refineSolution(generateRoughSolution()));
+  // console.log(refineSolution(generateRoughSolution()))
+  // convertToCSV(refineSolution(generateRoughSolution()));
+
+  console.log(convertToCSV(rerunRefine()))
 
   console.log(checkFitness(test_obj1));
   console.log(checkFitness(test_obj2));
