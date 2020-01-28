@@ -26,6 +26,17 @@ function isEmpty(arr) {
 }
 
 /**
+ * Determines if a value exists in a multidimensional array.
+ * 
+ * @param {array} arr The multidimensional array.
+ * @param {string} elt The value to search for.
+ * @returns {boolean} 
+ */
+function exists(arr, elt) {
+  return arr.some(row => row.includes(elt));
+}
+
+/**
  * Converts an object into a nested array
  * 
  * @param {{}} obj The object to be passed in
@@ -69,7 +80,7 @@ function calculateScore(slot, timestamp) {
 
   // Score the first group
   if (slot[0].length > 0) {
-      score += Math.abs(4 - (slot.length ** 2))
+      score += Math.abs(6 - (slot.length ** 2))
       score += calcuateTimeScore(timestamp)
   }
 
@@ -190,22 +201,17 @@ function refineSolution(solution_and_other_info) {
   var person_to_timestamp = solution_and_other_info[1];
   var timestamp_to_person = solution_and_other_info[2];
   var num_poss_slots = solution.possNumSlots;
-  console.log(num_poss_slots);
 
   var best_fitness = checkFitness(solution);
-  console.log("OG: " + best_fitness);
 
   for (var a_person in person_to_timestamp) {
     var time_list = person_to_timestamp[a_person];
     for (var a_time in time_list) {
       new_slot = time_list.shift();
       for (week = 0; week < 2; week++) {
-        let new_temp_solution = swapSlot(solution, a_person, [time_list[a_time], week]);
+        let new_temp_solution = swapSlot(solution, a_person, [new_slot, week]);
         new_temp_solution.possNumSlots = num_poss_slots;
-        
         let score = checkFitness(new_temp_solution);
-        console.log(new_temp_solution);
-        console.log(score);
         if (score > best_fitness) {
           best_fitness = score;
           solution = new_temp_solution;
@@ -277,15 +283,44 @@ function findElt(solution, element) {
   return [key, week, elt_index];
 }
 
-/**
- * Determines if a value exists in a multidimensional array.
- * 
- * @param {array} arr The multidimensional array.
- * @param {string} elt The value to search for.
- * @returns {boolean} 
- */
-function exists(arr, elt) {
-  return arr.some(row => row.includes(elt));
+// CSV FUNCTION
+
+function convertToCSV(solution) {
+  let rows = [
+    ["Day/Time", "Week 1", "Week 2"]
+  ];
+
+  solution = objToArray(solution);
+  solution = solution.sort((a, b) => a[0] - b[0]);
+
+  var last_day_of_week = "";
+
+  for (var slot in solution) {
+    let date_time = new Date(Number(solution[slot][0]));
+    let days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    let day_of_week = days[date_time.getDay()];
+    let hour = date_time.getUTCHours();
+    var ampm = hour >= 12 ? 'pm' : 'am';
+    hour = hour % 12;
+    hour = hour ? hour : 12; // the hour '0' should be '12'
+    let minutes = date_time.getUTCMinutes();
+    minutes = minutes < 10 ? '0'+minutes : minutes;
+
+    if (day_of_week == last_day_of_week) {
+      rows.push([hour + ":" + minutes + ampm, solution[slot][1][0], solution[slot][1][1]]);
+    } else {
+      rows.push([day_of_week + " " + hour + ":" + minutes + ampm, solution[slot][1][0], solution[slot][1][1]]);
+    }
+    last_day_of_week = day_of_week;
+  }
+
+  let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+  var encodedUri = encodeURI(csvContent);
+  var link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "meeting_schedule.csv");
+  document.body.appendChild(link); // Required for FF
+  link.click(); // This will download the data file named "my_data.csv".
 }
 
 if (DEBUG == true) {
@@ -325,7 +360,8 @@ if (DEBUG == true) {
   console.log(swapSlot(test_obj4, "person1", [1578906000000, 1]));
   console.log(swapSlot(test_obj4, "person1", [1579003200000, 1]));
 
-  console.log(refineSolution(generateRoughSolution()));
+  console.log(refineSolution(generateRoughSolution()))
+  convertToCSV(refineSolution(generateRoughSolution()));
 
   console.log(checkFitness(test_obj1));
   console.log(checkFitness(test_obj2));
