@@ -1,14 +1,14 @@
 {
   "manifest_version": 2,
-  "name": "Cyberscholars Scheduling",
-  "version": "0.1",
+  "name": "Cyberscholars Scheduling Extension",
+  "version": "0.2",
   "background": {
     "scripts": ["background.js"]
   },
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "http://whenisgood.net/*"
       ],
       "js": ["jquery-3.4.1.min.js", "content.js"]
     }
