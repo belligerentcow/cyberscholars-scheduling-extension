@@ -9,8 +9,8 @@
  */
 function calcuateTimeScore(timestamp) {
     let score = 0
-
-    if (timestamp.getHours() >= 13) {
+    
+    if (timestamp.getUTCHours() >= 11) {
         score += 2
     }
 
@@ -50,14 +50,17 @@ function calculateScore(slot, timestamp) {
 /**
  * Processes a list of time slots and returns the "fitness" score based on if it is "optimized".
  * 
- * @param {{}} weekObject The object containing each "slot" with all the groups inside.
- * @param {number} possibleNumSlot The total number of slots possible.
+ * @param {Object} weekObject The object containing each "slot" with all the groups inside.
+ * @param {Number} weekObject.possibleNumSlot The total number of slots possible.
  * @returns {number} The total "fitness" score for this particular schedule combination.
  */
-function checkFitness(weekObject, possibleNumSlot) {
+function checkFitness(weekObject) {
     // Each slot corresponds to the same index in the timestamps (makes for a bit cleaner code)
     let slots = []
     let timestamps = []
+
+    let possibleNumSlot = weekObject.possNumSlot
+    delete weekObject.possNumSlot
 
     Object.keys(weekObject).forEach(key => {
         slots.push(weekObject[key])
@@ -80,23 +83,24 @@ function checkFitness(weekObject, possibleNumSlot) {
     return score
 }
 
-export default checkFitness = checkFitness
+//export default checkFitness = checkFitness
 
 // In VS code you can run this file with Node.JS, change this data to test different scenarios 
 
 let slots1 = {
-    1580147531000: [["Taco", "Fluff"], ["Puff"]],
-    1580143931000: [["Rufus"], ["Tuff"]]
+    possNumSlot: 10,
+    1579010400000: [["person1", "person2"], ["person3"]],
+    1578906000000: [["person4"], ["person5"]]
 }
 
 let slots2 = {
-    1579010400000: [["Taco", "Fluff"], []],
-    1578906000000: [["Puff", "Rufus"], []],
-    1578920400000: [["Tuff"], []]
+    possNumSlot: 10,
+    1579010400000: [["person1", "person2"], ["person3"]],
+    1579003200000: [["person4"], ["person5"]]
 }
 
-let score1 = checkFitness(slots1, 10)
-let score2 = checkFitness(slots2, 10)
+let score1 = checkFitness(slots1)
+let score2 = checkFitness(slots2)
 
 console.log(score1)
 console.log(score2)
