@@ -50,6 +50,12 @@ function objToArray(obj) {
   return return_array;
 }
 
+/**
+ * Flatten and stringify a multidimensional array, and replace all commas with semicolons (for CSV interpretation)
+ * 
+ * @param {array} arr The array to be processed
+ * @returns A flattened and stringified array
+ */
 function flattenAndStringify(arr) {
   let merged = [].concat.apply([], arr);
   let stringified = merged.toString();
@@ -204,6 +210,12 @@ function generateRoughSolution() {
   return [solution, person_to_timestamp];
 }
 
+/**
+ * Using the fitness checker, swaps elements into better positions
+ * 
+ * @param {array} solution_and_other_info An array of the form [solution, person_to_timestamp object]
+ * @returns {array} An array that includes [refined solution, person_to_timestamp, score]
+ */
 function refineSolution(solution_and_other_info) {
   var solution = solution_and_other_info[0];
   var person_to_timestamp = solution_and_other_info[1];
@@ -229,6 +241,11 @@ function refineSolution(solution_and_other_info) {
   return [solution, person_to_timestamp, score];
 }
 
+/**
+ * Loops through refineSolution until max score is reached based on heuristic
+ * 
+ * @returns The final solution object
+ */
 function rerunRefine() {
   let final_solution = generateRoughSolution();
 
@@ -313,6 +330,11 @@ function findElt(solution, element) {
 
 // CSV FUNCTION
 
+/**
+ * Converts the final solution to a CSV and prompts the user to download it
+ * 
+ * @param {{}} solution A final solution object.
+ */
 function convertToCSV(solution) {
   let rows = [
     ["Day/Time", "Week 1", "Week 2"]
