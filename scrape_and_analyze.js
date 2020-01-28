@@ -16,6 +16,16 @@ function uniq(a) {
 }
 
 /**
+ * Checks recursively if a multidimensional array is empty
+ * 
+ * @param {*} arr The array to be checked
+ * @returns {boolean}
+ */
+function isEmpty(arr) {
+  return Array.isArray(arr) && (arr.length == 0 || arr.every(isEmpty));
+}
+
+/**
  * Converts an object into a nested array
  * 
  * @param {{}} obj The object to be passed in
@@ -172,7 +182,38 @@ function generateRoughSolution() {
       }
     }
   }
-  return [solution, sortable_person_to_timestamp, sortable_timestamp_to_person];
+  return [solution, person_to_timestamp, timestamp_to_person];
+}
+
+function refineSolution(solution_and_other_info) {
+  var solution = solution_and_other_info[0];
+  var person_to_timestamp = solution_and_other_info[1];
+  var timestamp_to_person = solution_and_other_info[2];
+  var num_poss_slots = solution.possNumSlots;
+  console.log(num_poss_slots);
+
+  var best_fitness = checkFitness(solution);
+  console.log("OG: " + best_fitness);
+
+  for (var a_person in person_to_timestamp) {
+    var time_list = person_to_timestamp[a_person];
+    for (var a_time in time_list) {
+      new_slot = time_list.shift();
+      for (week = 0; week < 2; week++) {
+        let new_temp_solution = swapSlot(solution, a_person, [time_list[a_time], week]);
+        new_temp_solution.possNumSlots = num_poss_slots;
+        
+        let score = checkFitness(new_temp_solution);
+        console.log(new_temp_solution);
+        console.log(score);
+        if (score > best_fitness) {
+          best_fitness = score;
+          solution = new_temp_solution;
+        }
+      }
+    }
+  }
+  return solution;
 }
 
 // SWAPPING FUNCTIONS
@@ -191,6 +232,11 @@ function swapSlot(solution, element, new_slot) {
     temp_solution[new_slot[0]] = [[],[]];
   }
   temp_solution[new_slot[0]][new_slot[1]].push(element);
+  for (elt in temp_solution) {
+    if (isEmpty(temp_solution[elt])) {
+      delete temp_solution[elt];
+    }
+  }
   return temp_solution;
 }
 
@@ -278,6 +324,8 @@ if (DEBUG == true) {
 
   console.log(swapSlot(test_obj4, "person1", [1578906000000, 1]));
   console.log(swapSlot(test_obj4, "person1", [1579003200000, 1]));
+
+  console.log(refineSolution(generateRoughSolution()));
 
   console.log(checkFitness(test_obj1));
   console.log(checkFitness(test_obj2));
