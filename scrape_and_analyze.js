@@ -97,8 +97,6 @@ function calculateScore(slot, timestamp) {
   return score
 }
 
-// Exports
-
 /**
 * Processes a list of time slots and returns the "fitness" score based on if it is "optimized".
 * 
@@ -111,23 +109,21 @@ function checkFitness(weekObject) {
   let slots = []
   let timestamps = []
 
-  let possibleNumSlot = weekObject.possNumSlot
-  delete weekObject.possNumSlot
+  let possibleNumSlot = weekObject.possNumSlots;
+  delete weekObject.possNumSlots;
 
   Object.keys(weekObject).forEach(key => {
-      slots.push(weekObject[key])
-
-      // Convert to Date object (allows us to properly handle timezones without funky math)
-      let date = new Date(Number(key))
-
-      timestamps.push(date)
+    slots.push(weekObject[key])
+    // Convert to Date object (allows us to properly handle timezones without funky math)
+    let date = new Date(Number(key))
+    timestamps.push(date)
   })
 
   let score = 0
 
   for(let i = 0; i < slots.length; i++) {
-      // Week one's groups for this slot
-      score += calculateScore(slots[i], timestamps[i])
+    // Week one's groups for this slot
+    score += calculateScore(slots[i], timestamps[i])
   }
 
   score += Math.abs(possibleNumSlot - slots.length)
@@ -158,11 +154,13 @@ function generateRoughSolution() {
   all_times = uniq(all_times);
 
   var timestamp_to_person = new Object;
+
   for (var time in all_times) {
     for (var itm in responses) {
       let current_time = all_times[time];
       let current_availability = responses[itm][1].myCanDos;
       let current_name = responses[itm][1].name;
+
       if (current_availability.includes(current_time)) {
         if (timestamp_to_person.hasOwnProperty(current_time)){
           timestamp_to_person[current_time].push(current_name);
@@ -197,15 +195,13 @@ function generateRoughSolution() {
       }
     }
   }
-  return [solution, person_to_timestamp, timestamp_to_person];
+  return [solution, person_to_timestamp];
 }
 
 function refineSolution(solution_and_other_info) {
   var solution = solution_and_other_info[0];
   var person_to_timestamp = solution_and_other_info[1];
-  var timestamp_to_person = solution_and_other_info[2];
   var num_poss_slots = solution.possNumSlots;
-
   var best_fitness = checkFitness(solution);
 
   for (var a_person in person_to_timestamp) {
@@ -238,15 +234,19 @@ function refineSolution(solution_and_other_info) {
 */
 function swapSlot(solution, element, new_slot) {
   let temp_solution = removeEltFromSolution(solution, element);
+
   if (!temp_solution.hasOwnProperty(new_slot[0])) {
     temp_solution[new_slot[0]] = [[],[]];
   }
+
   temp_solution[new_slot[0]][new_slot[1]].push(element);
+
   for (elt in temp_solution) {
     if (isEmpty(temp_solution[elt])) {
       delete temp_solution[elt];
     }
   }
+
   return temp_solution;
 }
 
@@ -277,13 +277,16 @@ function findElt(solution, element) {
       return exists(solution[key], element);
     }
   })[0];
+
   let week = 0;
+
   for (var a_week in solution[key]) {
     if (solution[key][a_week].includes(element)) {
       week = a_week;
       elt_index = solution[key][week].indexOf(element);
     }
   }
+
   return [key, week, elt_index];
 }
 
@@ -324,7 +327,7 @@ function convertToCSV(solution) {
   link.setAttribute("href", encodedUri);
   link.setAttribute("download", "meeting_schedule.csv");
   document.body.appendChild(link); // Required for FF
-  link.click(); // This will download the data file named "my_data.csv".
+  link.click(); // This will download the data file
 }
 
 if (DEBUG == true) {

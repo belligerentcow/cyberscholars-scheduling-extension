@@ -59,8 +59,8 @@ function checkFitness(weekObject) {
     let slots = []
     let timestamps = []
 
-    let possibleNumSlot = weekObject.possNumSlot
-    delete weekObject.possNumSlot
+    let possibleNumSlot = weekObject.possNumSlots
+    delete weekObject.possNumSlots
 
     Object.keys(weekObject).forEach(key => {
         slots.push(weekObject[key])
