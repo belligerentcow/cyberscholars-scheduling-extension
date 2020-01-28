@@ -41,6 +41,7 @@ function objToArray(obj) {
 
 // SCORING MECHANICS
 
+// Utility Functions
 /**
  * Calculates the "bonus" score points to be added if the group is slotted in the afternoon
  * 
@@ -49,8 +50,8 @@ function objToArray(obj) {
  */
 function calcuateTimeScore(timestamp) {
   let score = 0
-
-  if (timestamp.getHours() >= 13) {
+  
+  if (timestamp.getUTCHours() >= 11) {
       score += 2
   }
 
@@ -85,19 +86,22 @@ function calculateScore(slot, timestamp) {
   return score
 }
 
+// Exports
+
 /**
 * Processes a list of time slots and returns the "fitness" score based on if it is "optimized".
 * 
-* @param {{}} weekObject The object containing each "slot" with all the groups inside.
-* @param {number} possibleNumSlot The total number of slots possible.
+* @param {Object} weekObject The object containing each "slot" with all the groups inside.
+* @param {Number} weekObject.possibleNumSlot The total number of slots possible.
 * @returns {number} The total "fitness" score for this particular schedule combination.
 */
 function checkFitness(weekObject) {
   // Each slot corresponds to the same index in the timestamps (makes for a bit cleaner code)
   let slots = []
   let timestamps = []
-  let possibleNumSlot = weekObject.possNumSlots;
-  delete weekObject.possNumSlots;
+
+  let possibleNumSlot = weekObject.possNumSlot
+  delete weekObject.possNumSlot
 
   Object.keys(weekObject).forEach(key => {
       slots.push(weekObject[key])
