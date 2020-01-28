@@ -50,6 +50,12 @@ function objToArray(obj) {
   return return_array;
 }
 
+function flattenAndStringify(arr) {
+  let merged = [].concat.apply([], arr);
+  let stringified = merged.toString();
+  return stringified.split(",").join(";");
+}
+
 // SCORING MECHANICS
 
 // Utility Functions
@@ -81,7 +87,7 @@ function calculateScore(slot, timestamp) {
 
   // Score the first group
   if (slot[0].length > 0) {
-      score += Math.abs(6 - (slot.length ** 2))
+      score += Math.abs(4 - (slot.length ** 2))
       score += calcuateTimeScore(timestamp)
   }
 
@@ -329,9 +335,9 @@ function convertToCSV(solution) {
     minutes = minutes < 10 ? '0'+minutes : minutes;
 
     if (day_of_week == last_day_of_week) {
-      rows.push([hour + ":" + minutes + ampm, solution[slot][1][0], solution[slot][1][1]]);
+      rows.push([hour + ":" + minutes + ampm, flattenAndStringify(solution[slot][1][0]), flattenAndStringify(solution[slot][1][1])]);
     } else {
-      rows.push([day_of_week + " " + hour + ":" + minutes + ampm, solution[slot][1][0], solution[slot][1][1]]);
+      rows.push([day_of_week + " " + hour + ":" + minutes + ampm, flattenAndStringify(solution[slot][1][0]), flattenAndStringify(solution[slot][1][1])]);
     }
     last_day_of_week = day_of_week;
   }
@@ -382,10 +388,8 @@ if (DEBUG == true) {
   console.log(swapSlot(test_obj4, "person1", [1578906000000, 1]));
   console.log(swapSlot(test_obj4, "person1", [1579003200000, 1]));
 
-  // console.log(refineSolution(generateRoughSolution()))
-  // convertToCSV(refineSolution(generateRoughSolution()));
-
-  console.log(convertToCSV(rerunRefine()))
+  // MAIN:
+  convertToCSV(rerunRefine())
 
   console.log(checkFitness(test_obj1));
   console.log(checkFitness(test_obj2));
