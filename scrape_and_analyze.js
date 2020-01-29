@@ -1,5 +1,12 @@
 const DEBUG = true;
 
+// scoring variables:
+const MORE_IN_WEEK1 = 6; // weight toward having someone in the week 1 slot
+const MORE_IN_WEEK2 = 9; // weight toward having someone in the week 2 slot
+const BOTH_WEEKS_EQUAL = 10; // bonus for both weeks having the same amount of people
+const MORE_AFTERNOON = 3; // bonus for time being the afternoon
+const FEWER_WEEKS = 10; // weight toward fewer timeslots overall
+
 // UTILITY FUNCTIONS
 
 /**
@@ -72,13 +79,13 @@ function flattenAndStringify(arr) {
  * @returns {number} The additional "bonus" points this group gets because of it's time slot 
  */
 function calcuateTimeScore(timestamp) {
-  let score = 0
+  let score = 0;
   
   if (timestamp.getUTCHours() >= 11) {
-      score += 2
+    score += MORE_AFTERNOON;
   }
 
-  return score
+  return score;
 }
 
 /**
@@ -93,17 +100,18 @@ function calculateScore(slot, timestamp) {
 
   // Score the first group
   if (slot[0].length > 0) {
-      score += Math.abs(4 - (slot.length ** 2))
+      score += MORE_IN_WEEK1 - (slot.length ** 2)
       score += calcuateTimeScore(timestamp)
   }
 
   // Score the second group, and reward those groups with this second week utilized
   if (slot[1].length > 0) {
-      score += Math.abs(4 - (slot.length ** 2))
+      score += MORE_IN_WEEK2 - (slot.length ** 2)
       score += calcuateTimeScore(timestamp)
-      
-      // Extra points for using this second week slot
-      score += 2
+  }
+
+  if (slot[0].length == slot[1].length) {
+    score += BOTH_WEEKS_EQUAL;
   }
 
   return score
@@ -138,7 +146,7 @@ function checkFitness(weekObject) {
     score += calculateScore(slots[i], timestamps[i])
   }
 
-  score += Math.abs(possibleNumSlot - slots.length)
+  score += FEWER_WEEKS*(possibleNumSlot - slots.length)
 
   return score
 }
@@ -223,7 +231,7 @@ function refineSolution(solution_and_other_info) {
   var best_fitness = checkFitness(solution);
 
   for (var a_person in person_to_timestamp) {
-    var time_list = person_to_timestamp[a_person];
+    var time_list = person_to_timestamp[a_person].slice(0);
     for (var a_time in time_list) {
       new_slot = time_list.shift();
       for (week = 0; week < 2; week++) {
@@ -248,12 +256,17 @@ function refineSolution(solution_and_other_info) {
  */
 function rerunRefine() {
   let final_solution = generateRoughSolution();
-
+  let counter = 0;
   while (true) {
     temp_final = final_solution.slice(0);
     final_solution = refineSolution(final_solution);
-    if (final_solution[2] === undefined) {
-      break;
+    if ((temp_final[2]/final_solution[2]) > .95) {
+      counter++;
+      if (counter == 10) {
+        break;
+      }
+    } else {
+      counter = 0;
     }
   }
 
