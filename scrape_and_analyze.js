@@ -1,11 +1,16 @@
-const DEBUG = true;
+// MAIN FUNCTION
+function main() {
+  const RANDOMNESS = 50; // the larger this is, the higher likelyhood of a great answer, but the longer it will take
 
-// scoring variables:
-const MORE_IN_WEEK1 = 6; // weight toward having someone in the week 1 slot
-const MORE_IN_WEEK2 = 9; // weight toward having someone in the week 2 slot
-const BOTH_WEEKS_EQUAL = 10; // bonus for both weeks having the same amount of people
-const MORE_AFTERNOON = 3; // bonus for time being the afternoon
-const FEWER_WEEKS = 10; // weight toward fewer timeslots overall
+  let best_solution = [{},{},0];
+  for (i=0; i < RANDOMNESS; i++) {
+    let temp_solution = rerunRefine();
+    if (temp_solution[2] > best_solution[2]) {
+      best_solution = temp_solution.slice(0);
+    }
+  }
+  return best_solution;
+}
 
 // UTILITY FUNCTIONS
 
@@ -21,6 +26,32 @@ function uniq(a) {
     return seen.hasOwnProperty(item) ? false : (seen[item] = true);
   });
 }
+
+/**
+ * Randomly shuffle an array
+ * 
+ * @param  {Array} array The array to shuffle
+ * @return {Array} The shuffled array 
+ */
+function shuffle(array) {
+	var currentIndex = array.length;
+	var temporaryValue, randomIndex;
+
+	// While there remain elements to shuffle...
+	while (0 !== currentIndex) {
+		// Pick a remaining element...
+		randomIndex = Math.floor(Math.random() * currentIndex);
+		currentIndex -= 1;
+
+		// And swap it with the current element.
+		temporaryValue = array[currentIndex];
+		array[currentIndex] = array[randomIndex];
+		array[randomIndex] = temporaryValue;
+	}
+
+	return array;
+
+};
 
 /**
  * Checks recursively if a multidimensional array is empty
@@ -79,6 +110,8 @@ function flattenAndStringify(arr) {
  * @returns {number} The additional "bonus" points this group gets because of it's time slot 
  */
 function calcuateTimeScore(timestamp) {
+  const MORE_AFTERNOON = 3; // bonus for time being the afternoon
+
   let score = 0;
   
   if (timestamp.getUTCHours() >= 11) {
@@ -96,6 +129,10 @@ function calcuateTimeScore(timestamp) {
 * @returns {number} The score for this particular group
 */
 function calculateScore(slot, timestamp) {
+  const MORE_IN_WEEK1 = 4; // weight toward having someone in the week 1 slot
+  const MORE_IN_WEEK2 = 6; // weight toward having someone in the week 2 slot
+  const BOTH_WEEKS_EQUAL = 6; // bonus for both weeks having the same amount of people  
+
   let score = 0
 
   // Score the first group
@@ -125,6 +162,8 @@ function calculateScore(slot, timestamp) {
 * @returns {number} The total "fitness" score for this particular schedule combination.
 */
 function checkFitness(weekObject) {
+  const FEWER_WEEKS = 20; // weight toward fewer timeslots overall
+
   // Each slot corresponds to the same index in the timestamps (makes for a bit cleaner code)
   let slots = []
   let timestamps = []
@@ -194,9 +233,9 @@ function generateRoughSolution() {
 
   // Convert objects to arrays and sort them based on step 1 of the algorithm
   sortable_person_to_timestamp = objToArray(person_to_timestamp);
-  sortable_person_to_timestamp.sort((a, b) => a[1].length - b[1].length);
+  sortable_person_to_timestamp = shuffle(sortable_person_to_timestamp);
   sortable_timestamp_to_person = objToArray(timestamp_to_person);
-  sortable_timestamp_to_person.sort((a, b) => b[1].length - a[1].length);
+  sortable_timestamp_to_person = shuffle(sortable_timestamp_to_person);
 
   // Generate rough solution
   var solution = new Object;
@@ -269,8 +308,7 @@ function rerunRefine() {
       counter = 0;
     }
   }
-
-  return final_solution[0]
+  return final_solution
 }
 
 // SWAPPING FUNCTIONS
@@ -341,94 +379,5 @@ function findElt(solution, element) {
   return [key, week, elt_index];
 }
 
-// CSV FUNCTION
-
-/**
- * Converts the final solution to a CSV and prompts the user to download it
- * 
- * @param {{}} solution A final solution object.
- */
-function convertToCSV(solution) {
-  let rows = [
-    ["Day/Time", "Week 1", "Week 2"]
-  ];
-  delete solution.possNumSlots;
-  solution = objToArray(solution);
-  solution = solution.sort((a, b) => a[0] - b[0]);
-
-  var last_day_of_week = "";
-
-  for (var slot in solution) {
-    let date_time = new Date(Number(solution[slot][0]));
-    let days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    let day_of_week = days[date_time.getDay()];
-    let hour = date_time.getUTCHours();
-    var ampm = hour >= 12 ? 'pm' : 'am';
-    hour = hour % 12;
-    hour = hour ? hour : 12; // the hour '0' should be '12'
-    let minutes = date_time.getUTCMinutes();
-    minutes = minutes < 10 ? '0'+minutes : minutes;
-
-    if (day_of_week == last_day_of_week) {
-      rows.push([hour + ":" + minutes + ampm, flattenAndStringify(solution[slot][1][0]), flattenAndStringify(solution[slot][1][1])]);
-    } else {
-      rows.push([day_of_week + " " + hour + ":" + minutes + ampm, flattenAndStringify(solution[slot][1][0]), flattenAndStringify(solution[slot][1][1])]);
-    }
-    last_day_of_week = day_of_week;
-  }
-
-  let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
-  var encodedUri = encodeURI(csvContent);
-  var link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "meeting_schedule.csv");
-  document.body.appendChild(link); // Required for FF
-  link.click(); // This will download the data file
-}
-
-if (DEBUG == true) {
-  test_obj1 = {
-    possNumSlots: 10,
-    1579010400000: [["person1", "person2", "person3", "person4", "person5"], []]
-  };
-  test_obj2 = {
-    possNumSlots: 10,
-    1579010400000: [["person1"], []],
-    1578924000000: [["person2"], []],
-    1578906000000: [["person3"], []],
-    1579003200000: [["person4"], []],
-    1578920400000: [["person5"], []]
-  };
-  test_obj3 = {
-    possNumSlots: 10,
-    1579010400000: [["person1", "person2"], []],
-    1578906000000: [["person3", "person4"], []],
-    1578920400000: [["person5"], []]
-  };
-  test_obj4 = {
-    possNumSlots: 10,
-    1579010400000: [["person1", "person2"], ["person3"]],
-    1578906000000: [["person4"], ["person5"]]
-  };
-  test_obj5 = {
-    possNumSlots: 10,
-    1579010400000: [["person1", "person2"], ["person3"]],
-    1579003200000: [["person4"], ["person5"]]
-  };
-
-  console.log(findElt(test_obj4, "person5"));
-  
-  console.log(removeEltFromSolution(test_obj5, "person4"));
-
-  console.log(swapSlot(test_obj4, "person1", [1578906000000, 1]));
-  console.log(swapSlot(test_obj4, "person1", [1579003200000, 1]));
-
-  // MAIN:
-  convertToCSV(rerunRefine())
-
-  console.log(checkFitness(test_obj1));
-  console.log(checkFitness(test_obj2));
-  console.log(checkFitness(test_obj3));
-  console.log(checkFitness(test_obj4));
-  console.log(checkFitness(test_obj5));
-}
+// MAIN:
+window.postMessage({ type: "FROM_PAGE", text: main() }, "*");

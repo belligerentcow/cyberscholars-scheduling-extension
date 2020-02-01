@@ -7,14 +7,14 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "http://whenisgood.net/*"
-      ],
+      "matches": ["http://whenisgood.net/*"],
       "js": ["jquery-3.4.1.min.js", "content.js"]
     }
   ],
   "web_accessible_resources" : ["scrape_and_analyze.js"],
   "browser_action": {
-    "default_icon": "icon.png"
-  }
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": ["activeTab"]
 }

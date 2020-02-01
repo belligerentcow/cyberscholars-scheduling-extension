@@ -14,3 +14,16 @@ chrome.runtime.onMessage.addListener(
     }
   }
 );
+
+window.addEventListener("message", function(event) {
+  // We only accept messages from ourselves
+  if (event.source != window) return;
+
+  if (event.data.type && (event.data.type == "FROM_PAGE")) {
+    console.log("solution sent to content script successfully");
+  }
+
+  chrome.runtime.sendMessage(event.data.text, function(response) {
+    console.log("solution logged successfully");
+  });  
+});
