@@ -20,10 +20,10 @@ window.addEventListener("message", function(event) {
   if (event.source != window) return;
 
   if (event.data.type && (event.data.type == "FROM_PAGE")) {
-    console.log("Content script received: " + event.data.text);
+    console.log("solution sent to content script successfully");
   }
 
   chrome.runtime.sendMessage(event.data.text, function(response) {
-    console.log(response.farewell);
+    console.log("solution logged successfully");
   });  
 });
