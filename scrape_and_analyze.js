@@ -1,6 +1,6 @@
 // MAIN FUNCTION
 function main() {
-  const RANDOMNESS = 100; // the larger this is, the higher likelyhood of a great answer, but the longer it will take
+  const RANDOMNESS = 50; // the larger this is, the higher likelyhood of a great answer, but the longer it will take
 
   let best_solution = [{},{},0];
   for (i=0; i < RANDOMNESS; i++) {
