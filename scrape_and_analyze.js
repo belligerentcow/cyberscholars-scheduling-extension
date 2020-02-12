@@ -1,6 +1,6 @@
 // MAIN FUNCTION
 function main() {
-  const RANDOMNESS = 50; // the larger this is, the higher likelyhood of a great answer, but the longer it will take
+  const RANDOMNESS = 100; // the larger this is, the higher likelyhood of a great answer, but the longer it will take
 
   let best_solution = [{},{},0];
   for (i=0; i < RANDOMNESS; i++) {
@@ -129,9 +129,9 @@ function calcuateTimeScore(timestamp) {
 * @returns {number} The score for this particular group
 */
 function calculateScore(slot, timestamp) {
-  const MORE_IN_WEEK1 = 4; // weight toward having someone in the week 1 slot
-  const MORE_IN_WEEK2 = 6; // weight toward having someone in the week 2 slot
-  const BOTH_WEEKS_EQUAL = 6; // bonus for both weeks having the same amount of people  
+  const MORE_IN_WEEK1 = 0; // weight toward having someone in the week 1 slot
+  const MORE_IN_WEEK2 = 5; // weight toward having someone in the week 2 slot
+  const BOTH_WEEKS_EQUAL = 20; // bonus for both weeks having the same amount of people  
 
   let score = 0
 
@@ -151,6 +151,10 @@ function calculateScore(slot, timestamp) {
     score += BOTH_WEEKS_EQUAL;
   }
 
+  if (slot[0].length >= 4 || slot[1].length >= 4) {
+    score -= score**400;
+  }
+
   return score
 }
 
@@ -162,7 +166,7 @@ function calculateScore(slot, timestamp) {
 * @returns {number} The total "fitness" score for this particular schedule combination.
 */
 function checkFitness(weekObject) {
-  const FEWER_WEEKS = 20; // weight toward fewer timeslots overall
+  const FEWER_WEEKS = 7; // weight toward fewer timeslots overall
 
   // Each slot corresponds to the same index in the timestamps (makes for a bit cleaner code)
   let slots = []
